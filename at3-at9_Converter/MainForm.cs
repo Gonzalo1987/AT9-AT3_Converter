@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using at3_at9_Converter.Properties;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace at3_at9_Converter
 {
@@ -43,6 +44,7 @@ namespace at3_at9_Converter
         private string at9tool = "";
         private string at3bitRate = "";
         private string at9bitRate = "";
+        private string at9channel = "";
         private CustomToolTip tip;
 
         string[] consoleListAt3 = new string[] { 
@@ -55,6 +57,24 @@ namespace at3_at9_Converter
             "PSVita"
         };
 
+        Dictionary<String, int> pspChannels = new Dictionary<string, int>()
+        {
+            { "32", 1 },
+            { "48", 1 },
+            { "52", 1 },
+            { "64", 1 },
+            { "66", 1 },
+            { "96", 1 },
+            { "105", 2 },
+            { "128", 1 },
+            { "132" , 2 },
+            { "160", 2 },
+            { "192", 2 },
+            { "256", 2 },
+            { "320", 2 },
+            { "352", 2 }
+        };
+        
         string[] pspList = new string[] { 
             "32",
             "48",
@@ -70,6 +90,26 @@ namespace at3_at9_Converter
             "256",
             "320",
             "352"
+        };
+
+        Dictionary<String, int> ps3Channels = new Dictionary<string, int>()
+        {
+            { "36", 1 },
+            { "48" , 1 },
+            { "57", 1 },
+            { "64", 1 },
+            { "72", 1 },
+            { "96", 2 },
+            { "114", 2 },
+            { "128", 1 },
+            { "144", 2 },
+            { "160", 2 },
+            { "192", 2 },
+            { "256", 2 },
+            { "320", 6 },
+            { "384", 6 },
+            { "512", 6 },
+            { "768", 8 }
         };
 
         string[] ps3List = new string[] { 
@@ -91,6 +131,20 @@ namespace at3_at9_Converter
             "768"
         };
 
+        Dictionary<String, int> psvitaChannels = new Dictionary<string, int>()
+        {
+            { "36", 1 },
+            { "48", 1 },
+            { "60", 1 },
+            { "72", 1 },
+            { "84", 1 },
+            { "96", 1 },
+            { "120", 2 },
+            { "144", 2 },
+            { "168", 2 },
+            { "192", 2 },
+        };
+
         string[] psvitaList = new string[] { 
             "36",
             "48",
@@ -102,6 +156,30 @@ namespace at3_at9_Converter
             "144",
             "168",
             "192"
+        };
+
+        Dictionary<String, int> ps4Channels = new Dictionary<string, int>()
+        {
+            { "36", 1 },
+            { "48" , 1 },
+            { "60", 1 },
+            { "72", 1 },
+            { "84", 1 },
+            { "96", 1 },
+            { "120", 1 },
+            { "144", 1 },
+            { "168", 2 },
+            { "192", 2 },
+            { "240", 2 },
+            { "288", 2 },
+            { "300", 6 },
+            { "336", 8 },
+            { "360", 6 },
+            { "384", 4 },
+            { "420", 8 },
+            { "480", 6 },
+            { "504", 8 },
+            { "672", 8 }
         };
 
         string[] ps4List = new string[] { 
@@ -794,11 +872,24 @@ namespace at3_at9_Converter
                         
                         using (Mp3FileReader mp3 = new Mp3FileReader(FileNameSelected))
                         {
-                            /*using (WaveStream pcm = WaveFormatConversionStream.CreatePcmStream(mp3))
+                            int channel = 1;
+                            if ((comboBox4.Text == "PSVita") && at9bitRate != "")
                             {
-                                WaveFileWriter.CreateWaveFile(FileNameFinal2, pcm);
-                            }*/
-                            using (WaveStream pcm = new WaveFormatConversionStream(new WaveFormat(48000, 16, 1), mp3))
+                                channel = psvitaChannels[at9bitRate];
+                            }
+                            if ((comboBox4.Text == "PS4") && at9bitRate != "")
+                            {
+                                channel = ps4Channels[at9bitRate];
+                            }
+                            if (comboBox1.Text == "PSP" && at3bitRate != "") {
+                                channel = pspChannels[at3bitRate];
+                            }
+                            if (comboBox1.Text == "PS3" && at3bitRate != "")
+                            {
+                                channel = ps3Channels[at3bitRate];
+                            }
+
+                            using (WaveStream pcm = new WaveFormatConversionStream(new WaveFormat(48000, 16, channel), mp3))
                             {
                                 WaveFileWriter.CreateWaveFile(FileNameFinal2, pcm);
                             }
@@ -987,14 +1078,29 @@ namespace at3_at9_Converter
                         {
                             if (comboBox1.Text == "PSP")
                             {
-                                using (WaveStream pcm = new WaveFormatConversionStream(new WaveFormat(44100, 16, 1), mp3))
+                                int channel = pspChannels[at3bitRate];
+
+                                using (WaveStream pcm = new WaveFormatConversionStream(new WaveFormat(44100, 16, channel), mp3))
                                 {
                                     WaveFileWriter.CreateWaveFile(FileNameFinal2, pcm);
                                 }
                             }
                             else
                             {
-                                using (WaveStream pcm = new WaveFormatConversionStream(new WaveFormat(48000, 16, 1), mp3))
+                                int channel = 1;
+                                if ((comboBox4.Text == "PSVita") && at9bitRate != "")
+                                {
+                                    channel = psvitaChannels[at9bitRate];
+                                }
+                                if ((comboBox4.Text == "PS4") && at9bitRate != "")
+                                {
+                                    channel = ps4Channels[at9bitRate];
+                                }
+                                if (comboBox1.Text == "PS3" && at3bitRate != "")
+                                {
+                                    channel = ps3Channels[at3bitRate];
+                                }
+                                using (WaveStream pcm = new WaveFormatConversionStream(new WaveFormat(48000, 16, channel), mp3))
                                 {
                                     WaveFileWriter.CreateWaveFile(FileNameFinal2, pcm);
                                 }
@@ -1705,6 +1811,10 @@ namespace at3_at9_Converter
             LinkLabel.Link link = new LinkLabel.Link();
             link.LinkData = "http://bmk.hamtek-solutions.com/";
             linkLabel2.Links.Add(link);
+
+            LinkLabel.Link linkDracoder = new LinkLabel.Link();
+            linkDracoder.LinkData = "https://dracoder.com/";
+            linkLabel1.Links.Add(linkDracoder);
             //new ToolTip().SetToolTip(pictureBox1, "The desired tool-tip text.");
             //this.tip = new CustomToolTip();
             //comboBox1.SelectedIndex = 0;
@@ -1920,6 +2030,12 @@ namespace at3_at9_Converter
                 
             }
 
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // Send the URL to the operating system.
+            Process.Start(e.Link.LinkData as string);
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
